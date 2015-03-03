@@ -161,11 +161,20 @@ function process(files, options, pages, stylesheets) {
         throw utility.parseErrorMessage(err, cssStr);
     }
     return uncss(pages, parsed.stylesheet, options.ignore).spread(function (used, rep) {
+        //return list of unused selectors in report
+        var unused = _.map(used.unused.rules, function(rule) {
+            if (rule.selectors && rule.selectors.length > 0) {
+                if (rule.selectors.join('').indexOf(':') < 0) {
+                    return rule.selectors.join('') + '\n';
+                }
+            }
+        }).join('');
         var usedCss = css.stringify(used);
         if (options.report) {
             report = {
                 original: cssStr,
-                selectors: rep
+                selectors: rep,
+                unused: unused
             };
         }
         return new promise(function (resolve) {

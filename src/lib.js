@@ -164,18 +164,7 @@ function getUsedSelectors(page, stylesheet, isRec) {
  */
 function getAllSelectors(stylesheet) {
     /* TODO: Temporary hack */
-    return stylesheet.rules.reduce(function (memo, rule) {
-        if (rule.type === 'rule') {
-            return memo.concat(rule.selectors);
-        } else if (rule.type === 'media') {
-            return memo.concat(getAllSelectors(rule));
-        } else if (rule.type === 'keyframes') {
-            return memo.concat('keyframes-' + rule.name);
-        } else if (rule.type === 'comment') {
-            return memo;
-        }
-        return memo.concat(rule);
-    }, []);
+    return stylesheet.rules;
 }
 
 /**
