@@ -161,12 +161,14 @@ function process(files, options, pages, stylesheets) {
         throw utility.parseErrorMessage(err, cssStr);
     }
     return uncss(pages, parsed.stylesheet, options.ignore).spread(function (used, rep) {
-        //return list of unused selectors in report
-        var unused = _.map(used.unused.rules, function(rule) {
+        var unused= _.difference(rep.all, rep.used);
+        var unusedSelectors = _.map(unused, function(rule) {
             if (rule.selectors && rule.selectors.length > 0) {
                 if (rule.selectors.join('').indexOf(':') < 0) {
                     return rule.selectors.join('') + '\n';
                 }
+            } else if (rule.comment && rule.comment.indexOf('line') > 0) {
+                return '\n\r/*' + rule.comment  + '*/\n';
             }
         }).join('');
         var usedCss = css.stringify(used);
@@ -174,7 +176,7 @@ function process(files, options, pages, stylesheets) {
             report = {
                 original: cssStr,
                 selectors: rep,
-                unused: unused
+                unused: unusedSelectors
             };
         }
         return new promise(function (resolve) {
